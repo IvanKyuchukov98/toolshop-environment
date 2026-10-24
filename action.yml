@@ -1,0 +1,22 @@
+name: Toolshop environment
+description: Start a local Practice Software Testing "Toolshop" with fresh demo data for end-to-end tests
+author: IvanKyuchukov98
+
+outputs:
+  ui-url:
+    description: Base URL of the Toolshop web app
+    value: http://localhost:4200
+  api-url:
+    description: Base URL of the Toolshop REST API
+    value: http://localhost:8091
+
+runs:
+  using: composite
+  steps:
+    - name: Start the Toolshop
+      shell: bash
+      run: |
+        if ! "$GITHUB_ACTION_PATH/scripts/start.sh"; then
+          docker compose --project-directory "$GITHUB_ACTION_PATH" logs --tail 200
+          exit 1
+        fi

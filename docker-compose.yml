@@ -19,12 +19,14 @@ services:
       - mariadb
 
   # nginx in front of PHP-FPM; serves the API code from the shared volume.
+  # Official image instead of testsmith/practice-software-testing-web, which is published for arm64 only.
   web:
-    image: testsmith/practice-software-testing-web:latest
+    image: nginx:1.27-alpine
     ports:
       - "8091:80"
     volumes:
       - api-code:/var/www
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       - laravel-api
 

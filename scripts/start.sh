@@ -38,4 +38,28 @@ wait_for() {
 wait_for "$API_URL/products"
 wait_for "$UI_URL" # ng serve answers only after the app is compiled
 
+# The dev server prepares much of the app's JavaScript only on the first real browser load, which can
+# take close to a minute. Do that load now with headless Chrome, so tests don't pay for it (and time out).
+warm_up_ui() {
+  local chrome
+  chrome="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium \
+    || command -v chromium-browser || true)"
+  if [ -z "$chrome" ]; then
+    echo "No Chrome/Chromium found; skipping the UI warm-up"
+    return 0
+  fi
+  for _ in $(seq 1 10); do
+    if timeout 120 "$chrome" --headless=new --disable-gpu --no-first-run --virtual-time-budget=60000 \
+        --dump-dom "$UI_URL" 2>/dev/null | grep -q 'data-test="product-name"'; then
+      echo "$UI_URL renders products"
+      return 0
+    fi
+    sleep 5
+  done
+  echo "$UI_URL did not render products after warm-up" >&2
+  return 1
+}
+
+warm_up_ui
+
 echo "Toolshop is ready: UI $UI_URL, API $API_URL"

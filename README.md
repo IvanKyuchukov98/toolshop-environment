@@ -31,7 +31,9 @@ steps:
 ```
 
 The action starts the shop, loads the demo data and waits until both the web app and the API respond
-(usually 2–3 minutes, most of it the web app compiling). If startup fails, it prints the containers' logs.
+(usually 2–3 minutes, most of it the web app compiling). It then loads the shop once in headless Chrome and
+waits until products are shown, so the slow first page load doesn't land on your tests.
+If startup fails, it prints the containers' logs.
 
 ## Use it locally
 
